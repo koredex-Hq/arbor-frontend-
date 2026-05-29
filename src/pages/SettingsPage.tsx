@@ -10,11 +10,11 @@ import { getAccessToken } from "../services/api";
 import type { UserSettings, StoredApiKey, UsageSummary, ApiMode, StorageMode } from "../types";
 
 const PROVIDERS = [
-  { id: "openai", name: "OpenAI", hint: "sk-..." },
-  { id: "claude", name: "Anthropic (Claude)", hint: "sk-ant-..." },
-  { id: "gemini", name: "Google Gemini", hint: "AI..." },
-  { id: "grok", name: "xAI (Grok)", hint: "xai-..." },
-  { id: "openrouter", name: "OpenRouter", hint: "sk-or-v1-..." },
+  { id: "openai", name: "OpenAI", hint: "sk-...", frozen: true },
+  { id: "claude", name: "Anthropic (Claude)", hint: "sk-ant-...", frozen: true },
+  { id: "gemini", name: "Google Gemini", hint: "AI...", frozen: true },
+  { id: "grok", name: "xAI (Grok)", hint: "xai-...", frozen: true },
+  { id: "openrouter", name: "OpenRouter", hint: "sk-or-v1-...", frozen: false },
 ];
 
 export function SettingsPage() {
@@ -194,7 +194,7 @@ export function SettingsPage() {
               onClick={() => setTab(t.id)}
               className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
                 tab === t.id
-                  ? "bg-white text-white shadow-lg shadow-none"
+                  ? "bg-white text-black shadow-lg"
                   : "bg-[#111111] text-[#888888] hover:text-white hover:bg-[#1f1f1f]"
               }`}
             >
@@ -215,26 +215,19 @@ export function SettingsPage() {
               <p className="text-sm text-[#888888] mb-6">Choose how AI requests are billed.</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Platform Key */}
-                <button
-                  onClick={() => updateSetting({ api_mode: "platform" })}
-                  className={`p-5 rounded-xl border-2 text-left transition-all ${
-                    settings?.api_mode === "platform"
-                      ? "border-[#444444] bg-[#1a1a1a]"
-                      : "border-[#222222] hover:border-[#333333]"
-                  }`}
+                {/* Platform Key — frozen */}
+                <div
+                  className="p-5 rounded-xl border-2 border-[#1a1a1a] bg-[#0e0e0e] text-left opacity-50 cursor-not-allowed select-none"
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <Shield size={20} className={settings?.api_mode === "platform" ? "text-[#a0a0a0]" : "text-[#555555]"} />
-                    <span className="font-bold text-white">Platform Keys</span>
-                    {settings?.api_mode === "platform" && (
-                      <span className="ml-auto badge-brand text-[10px]">ACTIVE</span>
-                    )}
+                    <Shield size={20} className="text-[#333333]" />
+                    <span className="font-bold text-[#555555]">Platform Keys</span>
+                    <span className="ml-auto text-[10px] font-bold text-[#444444] border border-[#2a2a2a] rounded px-1.5 py-0.5">SOON</span>
                   </div>
-                  <p className="text-xs text-[#888888] leading-relaxed">
-                    Use our API keys. Subject to free tier limits ({usage?.today?.request_limit || 100} req/day).
+                  <p className="text-xs text-[#444444] leading-relaxed">
+                    Use our API keys. Subject to free tier limits (100 req/day).
                   </p>
-                </button>
+                </div>
 
                 {/* BYOK */}
                 <button
@@ -274,6 +267,20 @@ export function SettingsPage() {
                 {PROVIDERS.map(provider => {
                   const stored = storedKeys.find(k => k.provider === provider.id);
                   const isAdding = addingKey === provider.id;
+
+                  if (provider.frozen) {
+                    return (
+                      <div key={provider.id} className="p-4 rounded-xl bg-[#0e0e0e] border border-[#191919]/50 opacity-40 cursor-not-allowed select-none">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-[#333333]" />
+                            <span className="text-sm font-bold text-[#555555]">{provider.name}</span>
+                          </div>
+                          <span className="text-[10px] font-bold text-[#444444] border border-[#2a2a2a] rounded px-1.5 py-0.5">COMING SOON</span>
+                        </div>
+                      </div>
+                    );
+                  }
 
                   return (
                     <div key={provider.id} className="p-4 rounded-xl bg-[#111111]/50 border border-[#1f1f1f]/50">
@@ -364,25 +371,19 @@ export function SettingsPage() {
                   </p>
                 </button>
 
-                {/* Cloud */}
-                <button
-                  onClick={() => updateSetting({ storage_mode: "cloud" })}
-                  className={`w-full p-5 rounded-xl border-2 text-left transition-all ${
-                    settings?.storage_mode === "cloud"
-                      ? "border-[#444444] bg-[#1a1a1a]"
-                      : "border-[#222222] hover:border-[#333333]"
-                  }`}
+                {/* Cloud Sync — frozen */}
+                <div
+                  className="w-full p-5 rounded-xl border-2 border-[#1a1a1a] bg-[#0e0e0e] text-left opacity-40 cursor-not-allowed select-none"
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <Cloud size={20} className={settings?.storage_mode === "cloud" ? "text-[#a0a0a0]" : "text-[#555555]"} />
-                    <span className="font-bold text-white">Cloud Sync</span>
-                    <span className="badge-warning text-[10px]">PRO</span>
-                    {settings?.storage_mode === "cloud" && <span className="ml-auto badge-brand text-[10px]">ACTIVE</span>}
+                    <Cloud size={20} className="text-[#333333]" />
+                    <span className="font-bold text-[#555555]">Cloud Sync</span>
+                    <span className="text-[10px] font-bold text-[#444444] border border-[#2a2a2a] rounded px-1.5 py-0.5">SOON</span>
                   </div>
-                  <p className="text-xs text-[#888888] leading-relaxed">
+                  <p className="text-xs text-[#444444] leading-relaxed">
                     Synced across devices. Access from anywhere securely.
                   </p>
-                </button>
+                </div>
 
                 {/* Self-Hosted */}
                 <div
