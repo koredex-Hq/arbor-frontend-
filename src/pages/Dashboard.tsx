@@ -40,25 +40,12 @@ export function Dashboard() {
   const [storageMode, setStorageMode] = useState<string>("local");
   const [showWizard, setShowWizard] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [navigatingProject, setNavigatingProject] = useState<string | null>(null);
 
-  const handleProjectClick = async (project: any) => {
-    setNavigatingProject(project.id);
-    try {
-      // Try to get the first existing conversation for this project
-      const existing = await api.getProjectMainConversation(project.id);
-      if (existing) {
-        navigate(`/chat/${existing.id}`);
-      } else {
-        // No conversation yet — create one then navigate
-        const newConv = await createConversation("Project Initialization", project.id);
-        if (newConv) navigate(`/chat/${newConv.id}`);
-      }
-    } catch (err) {
-      console.error("Failed to open project:", err);
-    } finally {
-      setNavigatingProject(null);
-    }
+  const handleProjectClick = (project: any) => {
+    // Expand the project inline to show its conversations.
+    // Auto-creating a conversation here fails when no default tree exists yet,
+    // so we let users create conversations manually from the expanded view.
+    setSelectedProject(project);
   };
 
   // Admin panel state
@@ -392,9 +379,6 @@ export function Dashboard() {
                     <div className="flex gap-4 text-[10px] font-black uppercase tracking-widest text-[#555555]">
                       <span>{project.members || 1} members</span>
                       <span>{conversations.filter(c => c.project_id === project.id).length} conversations</span>
-                      {navigatingProject === project.id && (
-                        <span className="text-white animate-pulse">Opening...</span>
-                      )}
                     </div>
                   </div>
                 ))}
