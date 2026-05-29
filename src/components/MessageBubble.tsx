@@ -110,7 +110,7 @@ export function MessageBubble({
             </div>
             {message.metadata?.node_type !== "image" && (
               <span className="text-[8px] text-[#444444] mt-1 mr-3 font-mono">
-                {String(message.metadata?.model_id || "claude")}
+                {String(message.metadata?.model_id === "emini-flash" ? "gemini-flash" : (message.metadata?.model_id || "claude"))}
               </span>
             )}
           </div>

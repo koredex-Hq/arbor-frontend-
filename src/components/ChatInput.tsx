@@ -27,6 +27,7 @@ export function ChatInput({
   messagesCount,
   availableModels = [],
 }: Props) {
+  const normalizedActiveModelId = activeModelId === "emini-flash" ? "gemini-flash" : activeModelId;
   const [input, setInput] = useState("");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
@@ -133,15 +134,15 @@ export function ChatInput({
 
   // Determine if there's a BYOK mismatch
   let byokWarning = null;
-  if (settings?.api_mode === "byok" && activeModelId) {
+  if (settings?.api_mode === "byok" && normalizedActiveModelId) {
     const hasOpenRouterKey = storedKeys.some(k => k.provider === "openrouter");
     
     // Guess the required provider from the model ID
     let requiredDirectProvider = null;
-    if (activeModelId.includes("gemini")) requiredDirectProvider = "gemini";
-    else if (activeModelId.includes("claude")) requiredDirectProvider = "claude";
-    else if (activeModelId.includes("gpt")) requiredDirectProvider = "openai";
-    else if (activeModelId.includes("grok")) requiredDirectProvider = "grok";
+    if (normalizedActiveModelId.includes("gemini")) requiredDirectProvider = "gemini";
+    else if (normalizedActiveModelId.includes("claude")) requiredDirectProvider = "claude";
+    else if (normalizedActiveModelId.includes("gpt")) requiredDirectProvider = "openai";
+    else if (normalizedActiveModelId.includes("grok")) requiredDirectProvider = "grok";
     
     const hasDirectKey = requiredDirectProvider 
       ? storedKeys.some(k => k.provider === requiredDirectProvider)
@@ -158,7 +159,7 @@ export function ChatInput({
           <AlertTriangle size={12} />
           <span>
             You are using Your Own Keys (BYOK), but you don't have a {providerName} key stored. 
-            Requests to {activeModelId} may fail.
+            Requests to {normalizedActiveModelId} may fail.
           </span>
         </div>
       );
@@ -207,7 +208,7 @@ export function ChatInput({
                            hover:bg-[#111111] hover:text-[#888888] hover:border-[#2a2a2a] transition-all"
               >
                 <Sparkles size={10} />
-                {availableModels.find(m => m.id === activeModelId)?.name || activeModelId || "Claude 3.5 Sonnet"}
+                {availableModels.find(m => m.id === normalizedActiveModelId)?.name || normalizedActiveModelId || "Claude 3.5 Sonnet"}
               </button>
 
               {modelSelectorOpen && (
@@ -224,7 +225,7 @@ export function ChatInput({
                           setModelSelectorOpen(false);
                         }}
                         className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] transition-all
-                          ${activeModelId === model.id
+                          ${normalizedActiveModelId === model.id
                             ? "bg-white text-black font-medium"
                             : "text-[#888888] hover:bg-[#1a1a1a] hover:text-white"}`}
                       >
