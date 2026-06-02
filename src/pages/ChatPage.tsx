@@ -32,6 +32,7 @@ export function ChatPage() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [membersOpen, setMembersOpen] = useState(false);
+  const [providerError, setProviderError] = useState(false);
 
   // --- Team Members Panel State ---
   const [members, setMembers] = useState<any[]>([]);
@@ -273,7 +274,11 @@ export function ChatPage() {
       } catch (err: any) {
         setIsStreaming(false);
         setStreamingContent("");
-        alert(err.message || "Failed to send message");
+        if (err.message === "No model provider configured") {
+          setProviderError(true);
+        } else {
+          alert(err.message || "Failed to send message");
+        }
       }
     },
     [activeBranchId, appendMessage, fetchGraph]
@@ -619,6 +624,25 @@ export function ChatPage() {
       </>
     )}
 
+      {/* Provider Error Modal */}
+      {providerError && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+          <div className="bg-[#111111] rounded-2xl p-6 w-[320px] border border-[#1e1e1e] text-center animate-scale-in shadow-2xl">
+            <h3 className="text-base font-semibold text-white mb-2">No AI provider configured.</h3>
+            <p className="text-sm text-[#888888] mb-6 leading-relaxed">
+              Add your OpenRouter or OpenAI API key in Settings to start chatting.
+            </p>
+            <div className="flex flex-col gap-2">
+              <button onClick={() => navigate('/settings')} className="btn-primary w-full py-2.5 flex justify-center items-center">
+                Open Settings
+              </button>
+              <button onClick={() => setProviderError(false)} className="text-xs text-[#555555] hover:text-[#888888] transition-colors py-2 mt-1">
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
