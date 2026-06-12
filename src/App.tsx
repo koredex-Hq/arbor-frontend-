@@ -15,6 +15,7 @@ import { AccountPage } from "./pages/AccountPage";
 import { JoinPage } from "./pages/JoinPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { TermsPage } from "./pages/TermsPage";
+import { AcceptTermsPage } from "./pages/AcceptTermsPage";
 import { ProjectPage } from "./pages/ProjectPage";
 import { TeamPage } from "./pages/TeamPage";
 
@@ -116,6 +117,9 @@ function App() {
           path="/team/:projectId"
           element={session?.access_token ? <TeamPage /> : <Navigate to="/" replace />}
         />
+
+        {/* Legal acceptance gate — accessible after OAuth sign-in */}
+        <Route path="/accept-terms" element={<AcceptTermsPage />} />
 
         {/* Static public pages */}
         <Route path="/privacy" element={<PrivacyPage />} />
