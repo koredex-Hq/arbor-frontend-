@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import {
   GitBranch, ArrowLeft, Key, Database, BarChart3, Shield,
   Check, X, Plus, Trash2, ExternalLink, Loader2, HardDrive,
-  Cloud, Server, AlertTriangle, Zap
+  Cloud, Server, AlertTriangle, Zap, LogOut
 } from "lucide-react";
+import { supabase } from "../lib/supabase";
 import { api } from "../services/api";
 import { getAccessToken } from "../services/api";
 import type { UserSettings, StoredApiKey, UsageSummary, ApiMode, StorageMode } from "../types";
@@ -20,6 +21,14 @@ const PROVIDERS = [
 export function SettingsPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<"api" | "storage" | "usage">("api");
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    await supabase.auth.signOut();
+    // Redirect to the Koredex website after signing out
+    window.location.href = "https://koredex.com";
+  };
 
   // Settings state
   const [settings, setSettings] = useState<UserSettings | null>(null);
@@ -589,6 +598,31 @@ export function SettingsPage() {
             )}
           </div>
         )}
+      {/* Account / Sign out */}
+        <div className="mt-10 border-t border-[#1a1a1a] pt-8">
+          <h2 className="text-sm font-semibold text-[#444444] uppercase tracking-widest mb-4">Account</h2>
+          <div className="bg-[#111111] border border-[#1e1e1e] rounded-2xl p-5 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-white">Sign out</p>
+              <p className="text-xs text-[#555555] mt-0.5">You'll be taken to koredex.com</p>
+            </div>
+            <button
+              id="settings-logout-btn"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
+                         border border-[#2a2a2a] text-[#888888]
+                         hover:border-red-500/40 hover:text-red-400 hover:bg-red-500/5
+                         disabled:opacity-40 disabled:cursor-not-allowed
+                         transition-all duration-200"
+            >
+              {loggingOut
+                ? <Loader2 size={15} className="animate-spin" />
+                : <LogOut size={15} />}
+              {loggingOut ? "Signing out…" : "Sign out"}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
